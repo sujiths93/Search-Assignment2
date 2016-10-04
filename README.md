@@ -21,45 +21,7 @@ API to get the information. From retrieval viewpoint,
 ! ! ) is IDF (inverse document frequency).
 The following code (using Lucene API) can be useful to help you implement the ranking
 function:
-// Get the preprocessed query terms
-Analyzer analyzer = new StandardAnalyzer();
-QueryParser parser = new QueryParser("TEXT", analyzer);
-Query query = parser.parse(queryString);
-Set<Term> queryTerms = new LinkedHashSet<Term>();
-query.extractTerms(queryTerms);
-for (Term t : queryTerms) {
-System.out.println(t.text());
-}
-IndexReader reader = DirectoryReader
-.open(FSDirectory
-.open(new File(pathToIndex)));
-//Use DefaultSimilarity.decodeNormValue(…) to decode normalized document length
-DefaultSimilarity dSimi=new DefaultSimilarity();
-//Get the segments of the index
-List<AtomicReaderContext> leafContexts = reader.getContext().reader()
-.leaves();
-for (int i = 0; i < leafContexts.size(); i++) {
-AtomicReaderContext leafContext=leafContexts.get(i);
-int startDocNo=leafContext.docBase;
-int numberOfDoc=leafContext.reader().maxDoc();
-for (int docId = startDocNo; docId < startDocNo+numberOfDoc; docId++) {
-//Get normalized length for each document
-float normDocLeng=dSimi.decodeNormValue(leafContext.reader()
-.getNormValues("TEXT").get(docIdstartDocNo));
-System.out.println("Normalized length for doc("+docId+") is
-"+normDocLeng);
-}
-//Get the term frequency of "new" within each document containing it for
-<field>TEXT</field>
-DocsEnum de = MultiFields.getTermDocsEnum(leafContext.reader(),
-MultiFields.getLiveDocs(leafContext.reader()),
-"TEXT", new BytesRef("new"));
-int doc;
-while ((doc = de.nextDoc()) != DocsEnum.NO_MORE_DOCS) {
-System.out.println("\"new\" occurs "+de.freq() + " times in doc(" +
-(de.docID()+startDocNo)+") for the field TEXT");
-}
-}
+
 For each given query, your code should be able to 1. Parse the query using Standard
 Analyzer (Important: we need to use the SAME Analyzer that we used for indexing to
 parse the query), 2. Calculate the relevance score for each query term, and 3. Calculate
