@@ -22,7 +22,7 @@ API to get the information. From retrieval viewpoint,
 The following code (using Lucene API) can be useful to help you implement the ranking
 function:
 
-For each given query, your code should be able to 1. Parse the query using Standard
+<desc> For each given query, your code should be able to 1. Parse the query using Standard
 Analyzer (Important: we need to use the SAME Analyzer that we used for indexing to
 parse the query), 2. Calculate the relevance score for each query term, and 3. Calculate
 the relevance score 𝐹 𝑞, 𝑑𝑜𝑐 .
@@ -31,7 +31,8 @@ Task 2: Test your search function with TREC topics
 Next, we will need to test the search performance with the TREC standardized topic
 collections. You can download the query test topics from Canvas (topics.51-100).
 In this collection, TREC provides a number of topics (total 50 topics), which can be
-employed as the candidate queries for search tasks. For example, one TREC topic is:
+employed as the candidate queries for search tasks. For example, one TREC topic is: </desc>
+
 <top>
 <head> Tipster Topic Description
 <num> Number: 054
