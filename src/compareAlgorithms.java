@@ -1,6 +1,9 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
+
 import org.apache.lucene.search.similarities.BM25Similarity;
 import org.apache.lucene.search.similarities.ClassicSimilarity;
 import java.io.IOException;
@@ -81,9 +84,46 @@ public class compareAlgorithms {
 		}
 		return ob;
 	}
-	public static void main(String args[]) throws IOException{
+	public void compareAlgos(String fileName,Similarity similarity,ArrayList<storequery> queryObject) throws ParseException, IOException{
+		String index = "C:\\Users\\sujit\\Desktop\\Search\\Assignment 2\\index";
+		IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
+		IndexSearcher searcher = new IndexSearcher(reader);
+		Analyzer analyzer = new StandardAnalyzer();
+		searcher.setSimilarity(similarity);
+		QueryParser parser = new QueryParser("TEXT", analyzer);
+		FileWriter fwriter = new FileWriter(fileName);
+		for(storequery sq:queryObject){
+			//System.out.println("\n"+sq.qid+"\n");
+			Query query = parser.parse(QueryParser.escape(sq.title));
+			TopDocs results = searcher.search(query, 1000);		
+			//Print number of hits
+			int numTotalHits = results.totalHits;
+			System.out.println(numTotalHits + " total matching documents");
+			//Print retrieved results
+			int count=0;
+			ScoreDoc[] hits = results.scoreDocs;
+			for(int i=0;i<hits.length;i++){	
+				int j=i+1;
+				String temp="";
+				temp+=sq.qid+" doc="+hits[i].doc+" rank="+j+" score="+hits[i].score+"\n";
+				fwriter.append(temp);
+				count++;
+			}
+		}
+		fwriter.close();
+		reader.close();
+	}
+	public static void main(String args[]) throws IOException, ParseException{
 		compareAlgorithms c=new compareAlgorithms();
-		ArrayList<storequery> o;
+		ArrayList<storequery> o=new ArrayList<storequery>();
 		o=c.parsequery();
+		for(int i=0;i<o.size();i++){
+			o.get(i).desc=o.get(i).desc.trim();
+			o.get(i).qid=o.get(i).qid.trim();
+			o.get(i).title=o.get(i).title.trim();
+			//System.out.println(o.get(i).qid+"\n"+o.get(i).title+"\n"+o.get(i).desc);
+		}
+		Similarity similarity=new BM25Similarity();
+		c.compareAlgos("C:\\Users\\sujit\\Desktop\\Search\\Assignment 2\\BM25longshortQuery.txt",similarity,o);
 	}
 }
