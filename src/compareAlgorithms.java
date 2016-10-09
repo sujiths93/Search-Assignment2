@@ -53,7 +53,7 @@ public class compareAlgorithms {
 			this.qid=qid;
 		}
 	}
-	public void parsequery() throws IOException {
+	public ArrayList<storequery> parsequery() throws IOException {
 		ArrayList<storequery> ob = new ArrayList<storequery>();
 		String s="C:\\Users\\sujit\\Desktop\\Search\\Assignment 2\\topics.txt";
 		String content = new String(Files.readAllBytes(Paths.get(s)));
@@ -72,7 +72,6 @@ public class compareAlgorithms {
 			if(((java.util.regex.Matcher) matcher).find()){
 				title=matcher.group(1);
 			}
-			
 			final Pattern pattern1 = Pattern.compile("<desc>\\s+Description:((.*))<smry>");
 			final java.util.regex.Matcher matcher1 = pattern1.matcher(tokens[i]);
 			if(((java.util.regex.Matcher) matcher1).find()){
@@ -80,10 +79,11 @@ public class compareAlgorithms {
 			}
 			ob.add(new storequery(title,desc,id));
 		}
-		System.out.println(ob.size());
+		return ob;
 	}
 	public static void main(String args[]) throws IOException{
 		compareAlgorithms c=new compareAlgorithms();
-		c.parsequery();
+		ArrayList<storequery> o;
+		o=c.parsequery();
 	}
 }
