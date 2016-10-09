@@ -60,7 +60,7 @@ public class compareAlgorithms {
 		}
 		return ob;
 	}
-	public void compareAlgos(String fileName,Similarity similarity,ArrayList<storequery> queryObject) throws ParseException, IOException{
+	public void compareAlgosshortQuery(String fileName,Similarity similarity,ArrayList<storequery> queryObject) throws ParseException, IOException{
 		String index = "C:\\Users\\sujit\\Desktop\\Search\\Assignment 2\\index";
 		IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
 		IndexSearcher searcher = new IndexSearcher(reader);
@@ -90,6 +90,34 @@ public class compareAlgorithms {
 		reader.close();
 		System.out.println("DONE");
 	}
+	public void compareAlgoslongQuery(String fileName,Similarity similarity,ArrayList<storequery> queryObject) throws ParseException, IOException{
+		String index = "C:\\Users\\sujit\\Desktop\\Search\\Assignment 2\\index";
+		IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
+		IndexSearcher searcher = new IndexSearcher(reader);
+		Analyzer analyzer = new StandardAnalyzer();
+		searcher.setSimilarity(similarity);
+		QueryParser parser = new QueryParser("TEXT", analyzer);
+		FileWriter fwriter = new FileWriter(fileName);
+		for(storequery sq:queryObject){
+			Query query = parser.parse(QueryParser.escape(sq.desc));
+			TopDocs results = searcher.search(query, 1000);		
+			//Print number of hits
+			int numTotalHits = results.totalHits;
+			//System.out.println(numTotalHits + " total matching documents");
+			int count=0;
+			ScoreDoc[] hits = results.scoreDocs;
+			for(int i=0;i<hits.length;i++){	
+				int j=i+1;
+				String temp="";
+				temp+=sq.qid+" doc="+hits[i].doc+" rank="+j+" score="+hits[i].score+"\n";
+				fwriter.append(temp);
+			}
+		}
+		fwriter.close();
+		reader.close();
+		
+		System.out.println("DONE");
+	}
 	public static void main(String args[]) throws IOException, ParseException{
 		compareAlgorithms c=new compareAlgorithms();
 		ArrayList<storequery> o=new ArrayList<storequery>();
@@ -102,17 +130,30 @@ public class compareAlgorithms {
 		}
 		/*Short Query*/
 		Similarity similarity=new BM25Similarity();
-		c.compareAlgos("C:\\Users\\sujit\\Desktop\\Search\\Assignment 2\\BM25longshortQuery.txt",similarity,o);
+		c.compareAlgosshortQuery("C:\\Users\\sujit\\Desktop\\Search\\Assignment 2\\BM25longshortQuery.txt",similarity,o);
 		
 		//Default Similarity has deprecated, using Classic Similarity Instead.
 		similarity=new ClassicSimilarity();
-		c.compareAlgos("C:\\Users\\sujit\\Desktop\\Search\\Assignment 2\\ClassicSimilarityshortQuery.txt",similarity,o);
+		c.compareAlgosshortQuery("C:\\Users\\sujit\\Desktop\\Search\\Assignment 2\\ClassicSimilarityshortQuery.txt",similarity,o);
 
 		similarity=new LMDirichletSimilarity();
-		c.compareAlgos("C:\\Users\\sujit\\Desktop\\Search\\Assignment 2\\LMDirichletSimilarityshortQuery.txt",similarity,o);
+		c.compareAlgosshortQuery("C:\\Users\\sujit\\Desktop\\Search\\Assignment 2\\LMDirichletSimilarityshortQuery.txt",similarity,o);
 		
 		similarity=new LMJelinekMercerSimilarity((float) 0.7);
-		c.compareAlgos("C:\\Users\\sujit\\Desktop\\Search\\Assignment 2\\LMJelinekMercerSimilarityshortQuery.txt",similarity,o);
+		c.compareAlgosshortQuery("C:\\Users\\sujit\\Desktop\\Search\\Assignment 2\\LMJelinekMercerSimilarityshortQuery.txt",similarity,o);
+		
+		/*Long Query*/
+		similarity=new BM25Similarity();
+		c.compareAlgoslongQuery("C:\\Users\\sujit\\Desktop\\Search\\Assignment 2\\BM25longlongQuery.txt",similarity,o);
+		
+		similarity=new ClassicSimilarity();
+		c.compareAlgoslongQuery("C:\\Users\\sujit\\Desktop\\Search\\Assignment 2\\ClassicSimilaritylongQuery.txt",similarity,o);
+
+		similarity=new LMDirichletSimilarity();
+		c.compareAlgoslongQuery("C:\\Users\\sujit\\Desktop\\Search\\Assignment 2\\LMDirichletSimilaritylongQuery.txt",similarity,o);
+		
+		similarity=new LMJelinekMercerSimilarity((float) 0.7);
+		c.compareAlgoslongQuery("C:\\Users\\sujit\\Desktop\\Search\\Assignment 2\\LMJelinekMercerSimilaritylongQuery.txt",similarity,o);
 		
 	}
 }
