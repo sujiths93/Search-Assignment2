@@ -1,18 +1,22 @@
 import java.io.File;
-import org.apache.lucene.search.similarities.BM25Similarity;
 import org.apache.lucene.search.similarities.ClassicSimilarity;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.LeafReaderContext;
+import org.apache.lucene.index.MultiFields;
+import org.apache.lucene.index.PostingsEnum;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -23,27 +27,82 @@ import org.apache.lucene.search.Weight;
 import org.apache.lucene.search.similarities.DFISimilarity;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.BytesRef;
 
 public class easySearch {
-	
-	public static void main(String args[]){
-		try{
-			String queryString="enter the query string here";
-			Query query;
-			String indexPath="C:\\Users\\sujit\\Desktop\\Search\\Assignment 2\\index";
-			Analyzer analyzer=new StandardAnalyzer();
-			QueryParser parser=new QueryParser("TEXT",analyzer);
-			query=parser.parse(queryString);
-			System.out.println(query);
-			IndexReader reader=DirectoryReader.open(FSDirectory.open(Paths.get(indexPath)));
-			//Default Similarity has been deprecated
-			ClassicSimilarity dSimi=new ClassicSimilarity();
-			//Get the segments of the index
-			List<LeafReaderContext> leafContexts = reader.getContext().reader().leaves();
-			
+	static String indexpath;
+	static String queryString;
+	static IndexReader reader;
+	static IndexSearcher searcher;
+	static int totalNumDocs;
+	easySearch(String queryString) throws IOException{
+		indexpath="C:\\Users\\sujit\\Desktop\\Search\\Assignment 2\\index";
+		this.queryString=queryString;
+		reader=DirectoryReader.open(FSDirectory.open(Paths.get(indexpath)));
+		searcher=new IndexSearcher(reader);
+		totalNumDocs=reader.maxDoc();
+	}
+	static class Scores{
+		int docId;
+		double score;
+		public  Scores(int docId,double score){
+			this.docId=docId;
+			this.score=score;
 		}
-		 catch (ParseException e) {
-				System.out.println("ERROR WHILE PARSING");
+	}
+	public Set<Term> parserQuery(String queryString) throws IOException, ParseException{
+		Query query;
+		Analyzer analyzer=new StandardAnalyzer();
+		QueryParser parser=new QueryParser("TEXT",analyzer);
+		query=parser.parse(queryString);
+		Set<Term> queryTerms=new LinkedHashSet<Term>();
+		searcher.createNormalizedWeight(query, false).extractTerms(queryTerms);
+		return queryTerms;
+	}
+	public int termfreq(Term t,LeafReaderContext leaf,int startdoc,int docNum) throws IOException{
+		PostingsEnum de=MultiFields.getTermDocsEnum(leaf.reader(), "TEXT", new BytesRef(t.text()));
+		int doc;
+		if(de!=null){
+			while((doc=de.nextDoc())!=PostingsEnum.NO_MORE_DOCS){
+				if(de.docID()+startdoc==docNum)
+					return de.freq();
 			}
-		
+		}
+		return 0;
+	}
+	public double tfIdfQterm(int docFreq,int termFreq,float docLength){
+		double result=(termFreq/docLength)*Math.log(1+(totalNumDocs/docFreq));
+		return result;
+	}
+	
+	public static void main(String args[]) throws IOException, ParseException{
+			easySearch es=new easySearch("hello world");
+			Set<Term> queryTerms;
+			ArrayList<Double> scorelist=new ArrayList<Double>();
+			queryTerms=es.parserQuery(queryString);
+			ClassicSimilarity cSimi = new ClassicSimilarity();
+			List<LeafReaderContext> leafContexts = reader.getContext().reader().leaves();
+			List<Scores> score=new ArrayList<Scores>();
+			for(int i=0;i<leafContexts.size();i++){
+				LeafReaderContext leafContext=leafContexts.get(i);
+				int startDoc=leafContext.docBase;
+				int numberofDoc=leafContext.reader().numDocs();
+				for(int docId=0;docId<numberofDoc;docId++){
+					float normDocLength=cSimi.decodeNormValue(leafContext.reader().getNormValues("TEXT").get(docId));
+					float docLength = 1 / (normDocLength * normDocLength);
+					double sum=0.0;
+					for(Term t:queryTerms){
+						int docFreq=reader.docFreq(new Term("TEXT",t.text()));
+						int termFreq=es.termfreq(t,leafContext,startDoc,startDoc+docId);
+						sum+=es.tfIdfQterm(docFreq,termFreq,docLength);
+					}
+					score.add(new Scores(docId+startDoc,sum));
+				}
+			}
+			for(int i=0;i<score.size();i++){
+				System.out.println("DOCUMENT_ID:"+score.get(i).docId+"  RELEVANCE SCORE="+score.get(i).score);
+			}
+   }
+
 }
+
