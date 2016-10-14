@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -78,10 +79,11 @@ public class compareAlgorithms {
 			//Print retrieved results
 			int count=0;
 			ScoreDoc[] hits = results.scoreDocs;
-			for(int i=0;i<hits.length;i++){	
+			for(int i=0;i<hits.length;i++){
+				Document doc=searcher.doc(hits[i].doc);
 				int j=i+1;
 				String temp="";
-				temp+=sq.qid+" doc="+hits[i].doc+" rank="+j+" score="+hits[i].score+"\n";
+				temp+=sq.qid+" doc="+doc.get("DOCNO")+" rank="+j+" score="+hits[i].score+"\n";
 				fwriter.append(temp);
 				count++;
 			}
@@ -107,9 +109,10 @@ public class compareAlgorithms {
 			int count=0;
 			ScoreDoc[] hits = results.scoreDocs;
 			for(int i=0;i<hits.length;i++){	
+				Document doc=searcher.doc(hits[i].doc);
 				int j=i+1;
 				String temp="";
-				temp+=sq.qid+" doc="+hits[i].doc+" rank="+j+" score="+hits[i].score+"\n";
+				temp+=sq.qid+" doc="+doc.get("DOCNO")+" rank="+j+" score="+hits[i].score+"\n";
 				fwriter.append(temp);
 			}
 		}
