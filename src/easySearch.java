@@ -49,8 +49,6 @@ class CustomComparator implements Comparator<Scores> {
         return 0;
     }
 }
-
-
 public class easySearch {
 	static String indexpath;
 	String queryString;
@@ -63,7 +61,6 @@ public class easySearch {
 		reader=DirectoryReader.open(FSDirectory.open(Paths.get(indexpath)));
 		searcher=new IndexSearcher(reader);
 		totalNumDocs=reader.maxDoc();
-		scoreTopDocs();
 	}
 	
 	public Set<Term> parserQuery(String queryString) throws IOException, ParseException{
@@ -90,7 +87,7 @@ public class easySearch {
 		double result=(termFreq/docLength)*Math.log(1+(totalNumDocs/docFreq));
 		return result;
 	}
-	void scoreTopDocs() throws IOException, ParseException{
+	public List<Scores> scoreTopDocs() throws IOException, ParseException{
 		Set<Term> queryTerms;
 		ArrayList<Double> scorelist=new ArrayList<Double>();
 		queryTerms=parserQuery(queryString);
@@ -113,20 +110,17 @@ public class easySearch {
 				scores.add(new Scores(docId+startDoc,sum));
 			}
 		}
-		int n;
+
 		Collections.sort(scores, new CustomComparator());
-		if(scores.size()>1000)
-			n=1000;
-		else
-			n=scores.size();
-		for(int i=0;i<n;i++){
-			System.out.println("DOCUMENT_ID:"+scores.get(i).docId+"  RELEVANCE SCORE="+scores.get(i).score);
-		}
+
+		return scores;
 	}
-	
 	public static void main(String args[]) throws IOException, ParseException{
 			easySearch es=new easySearch("hello world");
-			
+			List<Scores> finalScores=es.scoreTopDocs();
+			for(Scores s:finalScores){
+				System.out.println("DOC-ID "+s.docId+" Score "+s.score);
+			}
     }
 }
 
