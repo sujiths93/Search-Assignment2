@@ -67,10 +67,9 @@ public class easySearch {
 	}
 	
 	public Set<Term> parserQuery(String queryString) throws IOException, ParseException{
-		Query query;
 		Analyzer analyzer=new StandardAnalyzer();
 		QueryParser parser=new QueryParser("TEXT",analyzer);
-		query=parser.parse(queryString);
+		Query query=parser.parse(QueryParser.escape(queryString));
 		Set<Term> queryTerms=new LinkedHashSet<Term>();
 		searcher.createNormalizedWeight(query, false).extractTerms(queryTerms);
 		return queryTerms;
@@ -94,6 +93,10 @@ public class easySearch {
 		Set<Term> queryTerms;
 		ArrayList<Double> scorelist=new ArrayList<Double>();
 		queryTerms=parserQuery(queryString);
+		System.out.println("\n");
+		for(Term t:queryTerms){
+			System.out.print(t.text()+" ");
+		}
 		ClassicSimilarity cSimi = new ClassicSimilarity();
 		List<LeafReaderContext> leafContexts = reader.getContext().reader().leaves();
 		List<Scores> scores=new ArrayList<Scores>();
@@ -120,11 +123,13 @@ public class easySearch {
 		return scores;
 	}
 	public static void main(String args[]) throws IOException, ParseException{
-			easySearch es=new easySearch("hello world");
+			easySearch es=new easySearch("This is a test query");
 			List<Scores> finalScores=es.scoreTopDocs();
+			//Statement to print the query along with the IDs
 			for(int i=0;i<500;i++){
 				System.out.println("DOC-ID "+finalScores.get(i).docId+" Score "+finalScores.get(i).score);
 			}
+			
     }
 }
 
