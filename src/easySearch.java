@@ -12,8 +12,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
+
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.LeafReaderContext;
@@ -31,9 +34,9 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.BytesRef;
 class Scores{
-	int docId;
+	String docId;
 	double score;
-	public  Scores(int docId,double score){
+	public  Scores(String docId,double score){
 		this.docId=docId;
 		this.score=score;
 	}
@@ -107,19 +110,20 @@ public class easySearch {
 					int termFreq=termfreq(t,leafContext,startDoc,startDoc+docId);
 					sum+=tfIdfQterm(docFreq,termFreq,docLength);
 				}
-				scores.add(new Scores(docId+startDoc,sum));
+				Set<String> s=new TreeSet<String>();
+				s.add("DOCNO");
+				Document doc=leafContext.reader().document(docId,s);
+				scores.add(new Scores(doc.get("DOCNO"),sum));
 			}
 		}
-
 		Collections.sort(scores, new CustomComparator());
-
 		return scores;
 	}
 	public static void main(String args[]) throws IOException, ParseException{
 			easySearch es=new easySearch("hello world");
 			List<Scores> finalScores=es.scoreTopDocs();
-			for(Scores s:finalScores){
-				System.out.println("DOC-ID "+s.docId+" Score "+s.score);
+			for(int i=0;i<500;i++){
+				System.out.println("DOC-ID "+finalScores.get(i).docId+" Score "+finalScores.get(i).score);
 			}
     }
 }
