@@ -68,6 +68,6 @@ public class searchTRECtopics extends compareAlgorithms{
 	public static void main(String args[]) throws IOException, ParseException{
 		searchTRECtopics s=new searchTRECtopics();
 		s.generateScoresShortqueries("C:\\Users\\sujit\\Desktop\\Search\\Assignment 2\\TfIdfShortQuery.txt",o);
-		s.generateScoresLongqueries("C:\\Users\\sujit\\Desktop\\Search\\Assignment 2\\TfIdfShortQuery.txt", o);
+		s.generateScoresLongqueries("C:\\Users\\sujit\\Desktop\\Search\\Assignment 2\\TfIdfLongQuery.txt", o);
 	}
 }
