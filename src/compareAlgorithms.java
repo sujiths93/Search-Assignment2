@@ -102,6 +102,7 @@ public class compareAlgorithms {
 		FileWriter fwriter = new FileWriter(fileName);
 		for(storequery sq:queryObject){
 			Query query = parser.parse(QueryParser.escape(sq.desc));
+			//System.out.println(sq.desc);
 			TopDocs results = searcher.search(query, 1000);		
 			//Print number of hits
 			int numTotalHits = results.totalHits;
@@ -110,9 +111,8 @@ public class compareAlgorithms {
 			ScoreDoc[] hits = results.scoreDocs;
 			for(int i=0;i<hits.length;i++){	
 				Document doc=searcher.doc(hits[i].doc);
-				int j=i+1;
 				String temp="";
-				temp+=sq.qid+" doc="+doc.get("DOCNO")+" rank="+j+" score="+hits[i].score+"\n";
+				temp+=sq.qid+" 0 "+doc.get("DOCNO")+" "+i+" "+hits[i].score+" 1"+"\n";
 				fwriter.append(temp);
 			}
 		}
