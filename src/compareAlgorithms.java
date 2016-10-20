@@ -81,9 +81,8 @@ public class compareAlgorithms {
 			ScoreDoc[] hits = results.scoreDocs;
 			for(int i=0;i<hits.length;i++){
 				Document doc=searcher.doc(hits[i].doc);
-				int j=i+1;
 				String temp="";
-				temp+=sq.qid+" doc="+doc.get("DOCNO")+" rank="+j+" score="+hits[i].score+"\n";
+				temp+=sq.qid+" 0 "+doc.get("DOCNO")+" "+i+" "+hits[i].score+" 1"+"\n";
 				fwriter.append(temp);
 				count++;
 			}
