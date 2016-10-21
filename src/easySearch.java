@@ -93,10 +93,11 @@ public class easySearch {
 		Set<Term> queryTerms;
 		ArrayList<Double> scorelist=new ArrayList<Double>();
 		queryTerms=parserQuery(queryString);
-		System.out.println("\n");
+		/*System.out.println("\n");
 		for(Term t:queryTerms){
 			System.out.print(t.text()+" ");
 		}
+		*/
 		ClassicSimilarity cSimi = new ClassicSimilarity();
 		List<LeafReaderContext> leafContexts = reader.getContext().reader().leaves();
 		List<Scores> scores=new ArrayList<Scores>();
@@ -110,8 +111,10 @@ public class easySearch {
 				double sum=0.0;
 				for(Term t:queryTerms){
 					int docFreq=reader.docFreq(new Term("TEXT",t.text()));
-					int termFreq=termfreq(t,leafContext,startDoc,startDoc+docId);
-					sum+=tfIdfQterm(docFreq,termFreq,docLength);
+					if(docFreq>0){
+						int termFreq=termfreq(t,leafContext,startDoc,startDoc+docId);
+						sum+=tfIdfQterm(docFreq,termFreq,docLength);
+					}
 				}
 				Set<String> s=new TreeSet<String>();
 				s.add("DOCNO");
@@ -126,9 +129,9 @@ public class easySearch {
 			easySearch es=new easySearch("This is a test query");
 			List<Scores> finalScores=es.scoreTopDocs();
 			//Statement to print the query along with the IDs
-			for(int i=0;i<500;i++){
+			/*for(int i=0;i<500;i++){
 				System.out.println("DOC-ID "+finalScores.get(i).docId+" Score "+finalScores.get(i).score);
-			}
+			}*/
 			
     }
 }

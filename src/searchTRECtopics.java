@@ -60,8 +60,7 @@ public class searchTRECtopics extends compareAlgorithms{
 		int n=finalScores.size()>1000 ? 1000:finalScores.size();
 		for(int i=0;i<n;i++){
 			String temp="";
-			temp+=qid+" doc="+finalScores.get(i).docId+" rank="+i+" score="+finalScores.get(i).score+"\n";
-			//System.out.println(temp);
+			temp+=qid+" 0 "+finalScores.get(i).docId+" "+i+" "+finalScores.get(i).score+" 1"+"\n";
 			fwriter.append(temp);
 		}
 	}
